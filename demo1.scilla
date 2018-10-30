@@ -1,0 +1,38 @@
+library Infoteria
+
+contract Infoteria
+(owner : ByStr20)
+
+field participants : Map ByStr20 String = Emp ByStr20 String
+
+transition registerName(inputFirstName : String)
+   p <- participants;
+   (* Dupulication Check *)
+   check_exist = builtin contains p _sender;
+   match check_exist with
+   | True =>
+       (* throw *)
+   | False =>
+       p = builtin put p _sender inputFirstName;
+       participants := p
+   end
+end
+
+transition deleteName(participantAddress : ByStr20)
+   (* Only owner can use this function *)
+   is_owner = builtin eq _sender owner;
+   match is_owner with
+   | True =>
+       p <- participants;
+       check_exist = builtin contains p participantAddress;
+       match check_exist with
+       | True =>
+           p = builtin remove p participantAddress;
+           participants := p
+       | False =>
+           (* throw *)
+       end
+   | False =>
+       (* throw *)
+   end
+end
